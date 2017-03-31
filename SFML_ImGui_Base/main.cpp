@@ -19,7 +19,7 @@ int main()
 
 	srand((unsigned int)time(NULL));
 
-	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "");
+	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "",sf::Style::None);
 	window.setVerticalSyncEnabled(true);
 	ImGui::SFML::Init(window);
 
@@ -36,16 +36,56 @@ int main()
 	sf::Clock deltaClock;
 
 
-	
 
-	while (window.isOpen()) {
+/*     HOW TO MOVE A BORDERLESS WINDOW            */
+	sf::Vector2i grabbedOffset;
+	bool grabbedWindow = false;
+////////////////////////////////////////////////////
+
+	while (window.isOpen())
+	{
 		sf::Event event;
-		while (window.pollEvent(event)) {
-			ImGui::SFML::ProcessEvent(event);
-
-			if (event.type == sf::Event::Closed) {
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed) 
+			{
 				window.close();
 			}
+////////////////////////////////////////////////////////////////////////////////////////////////
+/*					 HOW TO MOVE A BORDERLESS WINDOW						        */
+			else if (event.type == sf::Event::KeyPressed)
+			{
+				if (event.key.code == sf::Keyboard::Escape)
+					window.close();
+			}
+			else if (event.type == sf::Event::MouseButtonPressed)
+			{
+				if (event.mouseButton.button == sf::Mouse::Left)
+				{
+					grabbedOffset = window.getPosition() - sf::Mouse::getPosition();
+					grabbedWindow = true;
+				}
+			}
+			else if (event.type == sf::Event::MouseButtonReleased)
+			{
+				if (event.mouseButton.button == sf::Mouse::Left)
+					grabbedWindow = false;
+			}
+			else if (event.type == sf::Event::MouseMoved)
+			{
+				if (grabbedWindow)
+					window.setPosition(sf::Mouse::getPosition() + grabbedOffset);
+			}
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+			ImGui::SFML::ProcessEvent(event);
+
+			
 		}
 
 		ImGui::SFML::Update(window, deltaClock.restart());
@@ -56,8 +96,6 @@ int main()
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 
 		ImGui::Begin(u8"Mitt Fönster"); // begin window
-
-
 
 
 		ImGui::End(); // end window
