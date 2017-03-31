@@ -16,10 +16,11 @@ int main()
 {
 	static int HEIGHT = 600;
 	static int WIDTH = 800;
+	static int BORDER_ON_TOP = 20;
 
 	srand((unsigned int)time(NULL));
 
-	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "",sf::Style::None);
+	sf::RenderWindow window(sf::VideoMode(WIDTH, HEIGHT), "", sf::Style::None);
 	window.setVerticalSyncEnabled(true);
 	ImGui::SFML::Init(window);
 
@@ -37,17 +38,31 @@ int main()
 
 
 
-/*     HOW TO MOVE A BORDERLESS WINDOW            */
+	/*     HOW TO MOVE A BORDERLESS WINDOW            */
 	sf::Vector2i grabbedOffset;
 	bool grabbedWindow = false;
-////////////////////////////////////////////////////
+	bool redyToMove = false;
+	////////////////////////////////////////////////////
 
 	while (window.isOpen())
 	{
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed) 
+			// this will get the position of the mouse ON THE DESKTOP
+			sf::Vector2i mPos = sf::Mouse::getPosition();
+			// this will get the position of the WINDOW
+			sf::Vector2i wPos = window.getPosition();
+
+			// calculate if the mouse is on the window, but only max 20 pixels from the top 
+			int mousePosition = mPos.y - wPos.y;
+			if (mousePosition > 0 && mousePosition < BORDER_ON_TOP)
+				redyToMove = true;
+			else
+				redyToMove = false;
+
+
+			if (event.type == sf::Event::Closed)
 			{
 				window.close();
 			}
@@ -60,6 +75,8 @@ int main()
 			}
 			else if (event.type == sf::Event::MouseButtonPressed)
 			{
+				// redyToMove will only be true if the mouse is over the top border
+				if(redyToMove)
 				if (event.mouseButton.button == sf::Mouse::Left)
 				{
 					grabbedOffset = window.getPosition() - sf::Mouse::getPosition();
@@ -78,14 +95,7 @@ int main()
 			}
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
 			ImGui::SFML::ProcessEvent(event);
-
-			
 		}
 
 		ImGui::SFML::Update(window, deltaClock.restart());
@@ -99,8 +109,8 @@ int main()
 
 
 		ImGui::End(); // end window
-			
-		//ImGui::ShowTestWindow();
+
+				    //ImGui::ShowTestWindow();
 
 
 
